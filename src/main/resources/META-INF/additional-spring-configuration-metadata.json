@@ -1,0 +1,14 @@
+{
+    "properties": [
+        {
+            "name": "irfanadios.app.jwtSecret",
+            "type": "java.lang.String",
+            "description": "A description for 'irfanadios.app.jwtSecret'"
+        },
+        {
+            "name": "irfanadios.app.jwtExpirationMs",
+            "type": "java.lang.String",
+            "description": "A description for 'irfanadios.app.jwtExpirationMs'"
+        }
+    ]
+}
