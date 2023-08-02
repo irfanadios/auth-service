@@ -17,4 +17,5 @@ spring:
 irfanadios:
     app:
         jwtSecret: AL374nDr0p0E72aM4h3nDrAAL374nDr0p0E72aM4h3nDrAAL374nDr0p0E72aM4h3nDrA
-        jwtExpirationMs: 86400000
+        jwtExpirationMs: 900000
+        jwtRefreshExpirationMs: 4233600000

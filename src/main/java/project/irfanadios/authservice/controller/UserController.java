@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import project.irfanadios.authservice.request.RefreshTokenRequest;
 import project.irfanadios.authservice.request.SignInRequest;
 import project.irfanadios.authservice.request.SignUpRequest;
 import project.irfanadios.authservice.response.SignInResponse;
@@ -30,6 +30,13 @@ public class UserController {
     @PostMapping("/user")
     public ResponseEntity<DataResponseBuilder<Object>> userSignUp(@Validated @RequestBody SignUpRequest request) {
         DataResponseBuilder<Object> response = userService.signUp(request);
+
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<DataResponseBuilder<SignInResponse>> refreshToken(@RequestBody RefreshTokenRequest request) {
+        DataResponseBuilder<SignInResponse> response = userService.refreshToken(request);
 
         return ResponseEntity.status(response.getStatus()).body(response);
     }

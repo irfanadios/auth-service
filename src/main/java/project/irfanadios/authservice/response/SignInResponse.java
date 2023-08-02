@@ -4,8 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import project.irfanadios.authservice.dto.AccessToken;
+import project.irfanadios.authservice.dto.RefreshToken;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -13,9 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SignInResponse {
-    private String accessToken;
-    private String subject;
+    private AccessToken accessToken;
+    private RefreshToken refreshToken;
     private List<String> authorities;
-    private LocalDateTime issuedTime;
-    private LocalDateTime expiredTime;
 }

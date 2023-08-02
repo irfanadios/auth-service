@@ -62,7 +62,6 @@ public class WebSecurityConfig {
             .authorizeHttpRequests(authorize ->
                 authorize
                     .requestMatchers("/v1/user-management/**").permitAll()
-                    .requestMatchers("/v1/role-management/**").permitAll()
                     .anyRequest().authenticated()
             ).csrf(AbstractHttpConfigurer::disable)
             .cors(AbstractHttpConfigurer::disable);
