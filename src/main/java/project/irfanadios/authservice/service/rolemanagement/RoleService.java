@@ -16,7 +16,7 @@ public class RoleService {
     @Autowired
     private RoleRepository roleRepository;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
 
     public DataResponseBuilder<InsertRoleResponse> addRole(InsertRoleRequest request) {
         Role role = Role.builder().roleName(request.getRoleName()).build();

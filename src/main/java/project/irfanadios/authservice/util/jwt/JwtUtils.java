@@ -6,7 +6,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -16,7 +15,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import project.irfanadios.authservice.util.implementation.UserDetailsImpl;
 
 @Component
 public class JwtUtils {
@@ -24,21 +22,6 @@ public class JwtUtils {
 
     @Value("${irfanadios.app.jwtSecret}")
     private String jwtSecret;
-
-    @Value("${irfanadios.app.jwtExpirationMs}")
-    private int jwtExpirationMs;
-
-    public String generateJwtToken(Authentication authentication, Date now, Date expiry) {
-
-        UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
-
-        return Jwts.builder()
-            .setSubject((userPrincipal.getUsername()))
-            .setIssuedAt(now)
-            .setExpiration(expiry)
-            .signWith(key(), SignatureAlgorithm.HS256)
-            .compact();
-    }
 
     public String generateJwtToken(String username, Date now, Date expiry) {
         return Jwts.builder()

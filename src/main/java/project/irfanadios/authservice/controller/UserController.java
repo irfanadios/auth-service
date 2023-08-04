@@ -15,12 +15,12 @@ import project.irfanadios.authservice.service.usermanagement.UserService;
 import project.irfanadios.authservice.util.response.DataResponseBuilder;
 
 @RestController
-@RequestMapping("/v1/user-management")
+@RequestMapping("/api/auth-service/v1/user-management")
 public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("user/sign-in")
+    @PostMapping("/user/sign-in")
     public ResponseEntity<DataResponseBuilder<SignInResponse>> userSignIn(@Validated @RequestBody SignInRequest request) {
         DataResponseBuilder<SignInResponse> response = userService.signIn(request);
 

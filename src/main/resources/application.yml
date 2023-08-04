@@ -12,6 +12,17 @@ spring:
             ddl-auto: validate
         show-sql: true
 #--------------------------------------
+--- # Discovery
+#--------------------------------------
+spring:
+    application:
+        name: auth-service
+server:
+    port: 0
+eureka:
+    instance:
+        instance-id: ${spring.application.name}:${random.uuid}
+#--------------------------------------
 --- # APP Properties
 #--------------------------------------
 irfanadios:

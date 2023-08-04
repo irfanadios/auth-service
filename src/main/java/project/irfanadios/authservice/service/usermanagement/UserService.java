@@ -4,10 +4,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.irfanadios.authservice.dto.AccessToken;
@@ -22,7 +20,6 @@ import project.irfanadios.authservice.request.RefreshTokenRequest;
 import project.irfanadios.authservice.request.SignInRequest;
 import project.irfanadios.authservice.request.SignUpRequest;
 import project.irfanadios.authservice.response.SignInResponse;
-import project.irfanadios.authservice.util.implementation.UserDetailsImpl;
 import project.irfanadios.authservice.util.jwt.JwtUtils;
 import project.irfanadios.authservice.util.response.DataResponseBuilder;
 
@@ -31,14 +28,9 @@ import java.util.*;
 
 @Service
 public class UserService {
-    @Autowired
-    private AuthenticationManager authenticationManager;
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private RoleRepository roleRepository;
@@ -49,6 +41,8 @@ public class UserService {
     @Autowired
     private UserRoleRepository userRoleRepository;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     @Value("${irfanadios.app.jwtExpirationMs}")
     private Long jwtExpirationMs;
 
@@ -56,36 +50,33 @@ public class UserService {
     private Long jwtRefreshExpirationMs;
 
     public DataResponseBuilder<SignInResponse> signIn(SignInRequest request) {
-
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        Optional<User> userOptional = userRepository.findByEmail(request.getEmail());
+        if (!(userOptional.isPresent() && BCrypt.checkpw(request.getPassword(), userOptional.get().getPassword()))) {
+            return DataResponseBuilder.<SignInResponse>builder()
+                    .status(HttpStatus.BAD_REQUEST)
+                    .message("Username or Password is Incorrect.")
+                    .build();
+        }
 
         Date now = new Date();
         Date accessExpired = new Date(now.getTime() + jwtExpirationMs);
         Date refreshExpired = new Date(now.getTime() + jwtRefreshExpirationMs);
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-        String subject = userDetails.getUsername();
-
         AccessToken accessToken = AccessToken.builder()
-                .token(jwtUtils.generateJwtToken(authentication, now, accessExpired))
-                .subject(subject)
+                .token(jwtUtils.generateJwtToken(request.getEmail(), now, accessExpired))
+                .subject(request.getEmail())
                 .issuedTime(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .expiredTime(accessExpired.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .build();
 
         RefreshToken refreshToken = RefreshToken.builder()
-                .token(jwtUtils.generateJwtToken(authentication, now, refreshExpired))
-                .subject(subject)
+                .token(jwtUtils.generateJwtToken(request.getEmail(), now, refreshExpired))
+                .subject(request.getEmail())
                 .issuedTime(now.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .expiredTime(refreshExpired.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .build();
 
-        List<String> authorities = userRoleRepository.findByUserId(userDetails.getUserId()).stream().map(
+        List<String> authorities = userRoleRepository.findByUserId(userOptional.get().getUserId()).stream().map(
                 userRole -> userRole.getRole().getRoleName()
         ).toList();
 
