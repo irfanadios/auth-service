@@ -20,6 +20,7 @@ import project.irfanadios.authservice.request.RefreshTokenRequest;
 import project.irfanadios.authservice.request.SignInRequest;
 import project.irfanadios.authservice.request.SignUpRequest;
 import project.irfanadios.authservice.response.SignInResponse;
+import project.irfanadios.authservice.service.KafkaProducer;
 import project.irfanadios.authservice.util.jwt.JwtUtils;
 import project.irfanadios.authservice.util.response.DataResponseBuilder;
 
@@ -40,6 +41,9 @@ public class UserService {
 
     @Autowired
     private UserRoleRepository userRoleRepository;
+    
+    @Autowired
+    private KafkaProducer kafkaProducer;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -130,6 +134,8 @@ public class UserService {
         });
 
         userRoleRepository.saveAll(userRoles);
+
+        kafkaProducer.sendMessageStringUUID(savedUser.getUserId().toString());
 
         return DataResponseBuilder.builder()
                 .status(HttpStatus.OK)
