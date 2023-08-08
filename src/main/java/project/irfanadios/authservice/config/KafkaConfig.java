@@ -12,7 +12,12 @@ public class KafkaConfig {
     private String topicName;
 
     @Bean
-    public NewTopic topic() {
+    public NewTopic topic1() {
         return TopicBuilder.name(topicName).build();
+    }
+
+    @Bean
+    public NewTopic topic2() {
+        return TopicBuilder.name("auth-email-topics").build();
     }
 }

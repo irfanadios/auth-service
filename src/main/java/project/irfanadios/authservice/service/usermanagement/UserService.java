@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import project.irfanadios.authservice.dto.AccessToken;
 import project.irfanadios.authservice.dto.RefreshToken;
+import project.irfanadios.authservice.dto.SimpleEmailDto;
 import project.irfanadios.authservice.model.User;
 import project.irfanadios.authservice.model.UserRole;
 import project.irfanadios.authservice.model.UserRoleId;
@@ -136,6 +137,14 @@ public class UserService {
         userRoleRepository.saveAll(userRoles);
 
         kafkaProducer.sendMessageStringUUID(savedUser.getUserId().toString());
+
+        SimpleEmailDto simpleEmailDto = SimpleEmailDto.builder()
+                .recepient(savedUser.getEmail())
+                .subject("Account Registration Success.")
+                .body("Create account success. Welcome to LEAFDO App.")
+        .build();
+
+        kafkaProducer.sendMessageSimpleMail(simpleEmailDto);
 
         return DataResponseBuilder.builder()
                 .status(HttpStatus.OK)
